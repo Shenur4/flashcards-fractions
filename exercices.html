@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Exercices & Quiz Fractions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="assets/style.css">
+
+    <!-- MathJax -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['\\(', '\\)']] }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+<body>
+
+    <!-- NAVIGATION -->
+    <div class="navbar">
+        <a href="index.html">Flashcards</a>
+        <a href="#" id="btn-mode-exercise">Exercices</a>
+        <a href="#" id="btn-mode-quiz">Quiz</a>
+        <a href="#" id="btn-mode-challenge">Challenge</a>
+    </div>
+
+    <div class="container">
+
+        <!-- -------------------------------
+             CHOIX DU MODE
+        -------------------------------- -->
+        <div class="card">
+            <h3>Mode d'entraînement</h3>
+
+            <button id="mode-auto" class="secondary">Progression automatique</button>
+            <button id="mode-manual" class="secondary">Mode manuel</button>
+
+            <div id="manual-levels" class="hidden" style="margin-top:15px;">
+                <h4>Niveau manuel :</h4>
+                <div style="display:flex; gap:10px; justify-content:center;">
+                    <button class="secondary level-btn" data-level="1">1</button>
+                    <button class="secondary level-btn" data-level="2">2</button>
+                    <button class="secondary level-btn" data-level="3">3</button>
+                    <button class="secondary level-btn" data-level="4">4</button>
+                    <button class="secondary level-btn" data-level="5">5</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- -------------------------------
+             SECTION : EXERCICES INTELLIGENTS
+        -------------------------------- -->
+        <div id="exercise-section" class="hidden">
+
+            <h2>Exercices intelligents</h2>
+
+            <div class="card">
+                <div id="exercise-question"></div>
+            </div>
+
+            <input type="text" id="exercise-answer" placeholder="Ta réponse (ex : 3/4)">
+            <button id="exercise-check">Vérifier</button>
+            <button id="exercise-new" class="secondary">Nouvel exercice</button>
+
+            <div id="exercise-feedback"></div>
+            <div id="exercise-explanation" style="margin-top:15px;"></div>
+        </div>
+
+
+        <!-- -------------------------------
+             SECTION : QUIZ (10 QUESTIONS)
+        -------------------------------- -->
+        <div id="quiz-section" class="hidden">
+
+            <h2>Quiz – 10 questions</h2>
+
+            <div class="score-box" id="quiz-score">Score : 0 / 10</div>
+            <div id="quiz-progress" style="text-align:center; margin-bottom:10px;"></div>
+
+            <div class="card">
+                <div id="quiz-question"></div>
+            </div>
+
+            <input type="text" id="quiz-answer" placeholder="Ta réponse (ex : 3/4)">
+            <button id="quiz-check">Vérifier</button>
+            <button id="quiz-next" class="secondary">Question suivante</button>
+
+            <div id="quiz-feedback" style="margin-top:15px;"></div>
+
+            <button id="quiz-start" class="secondary" style="margin-top:20px;">Recommencer le quiz</button>
+        </div>
+
+
+        <!-- -------------------------------
+             SECTION : CHALLENGE (3 VIES)
+        -------------------------------- -->
+        <div id="challenge-section" class="hidden">
+
+            <h2>Challenge – 3 vies</h2>
+
+            <div class="score-box">
+                <span id="challenge-score">Score : 0</span>
+                <div id="challenge-lives" style="margin-top:8px;"></div>
+            </div>
+
+            <div class="card">
+                <div id="challenge-question"></div>
+            </div>
+
+            <input type="text" id="challenge-answer" placeholder="Ta réponse (ex : 3/4)">
+            <button id="challenge-check">Vérifier</button>
+            <button id="challenge-next" class="secondary">Nouvelle question</button>
+
+            <div id="challenge-feedback" style="margin-top:15px;"></div>
+
+            <button id="challenge-start" class="secondary" style="margin-top:20px;">Recommencer le challenge</button>
+        </div>
+
+    </div>
+
+    <script src="assets/script.js"></script>
+
+</body>
+</html>

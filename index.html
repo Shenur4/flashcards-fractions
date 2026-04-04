@@ -22,6 +22,24 @@
         margin: 0;
     }
 
+    /* NAVIGATION */
+    .navbar {
+        width: 100%;
+        max-width: 420px;
+        display: flex;
+        justify-content: space-between;
+        background: #4a90e2;
+        padding: 12px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .navbar a {
+        color: white;
+        text-decoration: none;
+        font-size: 15px;
+    }
+
     h1 {
         color: #2c3e50;
         margin-bottom: 15px;
@@ -98,6 +116,15 @@
         background: #3576b8;
     }
 
+    .secondary {
+        background: #e0e6f1;
+        color: #1a4fa3;
+    }
+
+    .secondary:active {
+        background: #cdd6e6;
+    }
+
     .reasoning {
         margin-top: 15px;
         padding: 10px;
@@ -128,6 +155,12 @@
 </head>
 
 <body>
+
+<!-- NAVIGATION -->
+<div class="navbar">
+    <a href="index.html">Flashcards</a>
+    <a href="exercices.html">Exercices</a>
+</div>
 
 <h1>Flashcards : Règles des Fractions</h1>
 
@@ -211,9 +244,7 @@ const flashcards = [
 {
     front: "➕ Addition (même dénominateur)",
     back: "\\( \\frac{3}{8} + \\frac{2}{8} = \\frac{5}{8} \\)",
-    reasoning: `
-        3 + 2 = 5
-    `
+    reasoning: `3 + 2 = 5`
 },
 
 /* 7 — Addition dénominateurs différents */
@@ -226,7 +257,7 @@ const flashcards = [
     `
 },
 
-/* 8 — Addition numérateurs + dénominateurs différents */
+/* 8 — Addition cas général */
 {
     front: "➕ Addition (cas général)",
     back: "\\( \\frac{3}{5} + \\frac{4}{7} = \\frac{41}{35} \\)",
@@ -240,9 +271,7 @@ const flashcards = [
 {
     front: "➖ Soustraction (même dénominateur)",
     back: "\\( \\frac{7}{10} - \\frac{3}{10} = \\frac{4}{10} \\)",
-    reasoning: `
-        7 - 3 = 4
-    `
+    reasoning: `7 - 3 = 4`
 },
 
 /* 10 — Soustraction dénominateurs différents */
@@ -255,7 +284,7 @@ const flashcards = [
     `
 },
 
-/* 11 — Soustraction numérateurs + dénominateurs différents */
+/* 11 — Soustraction cas général */
 {
     front: "➖ Soustraction (cas général)",
     back: "\\( \\frac{5}{6} - \\frac{2}{9} = \\frac{11}{18} \\)",
@@ -301,36 +330,28 @@ const flashcards = [
 {
     front: "📏 Fraction d’un nombre",
     back: "\\( \\frac{3}{4} \\) de 20 = 15",
-    reasoning: `
-        20 × 3/4 = 15
-    `
+    reasoning: `20 × 3/4 = 15`
 },
 
 /* 16 — Fraction → décimal */
 {
     front: "🔢 Fraction → décimal",
     back: "\\( \\frac{3}{4} = 0,75 \\)",
-    reasoning: `
-        3 ÷ 4 = 0,75
-    `
+    reasoning: `3 ÷ 4 = 0,75`
 },
 
 /* 17 — Décimal → fraction */
 {
     front: "🔢 Décimal → fraction",
     back: "0,25 = 1/4",
-    reasoning: `
-        0,25 = 25/100 = 1/4
-    `
+    reasoning: `0,25 = 25/100 = 1/4`
 },
 
 /* 18 — Fraction impropre */
 {
     front: "📘 Fraction impropre",
     back: "\\( \\frac{9}{4} = 2\\frac{1}{4} \\)",
-    reasoning: `
-        9 ÷ 4 = 2 reste 1
-    `
+    reasoning: `9 ÷ 4 = 2 reste 1`
 },
 
 /* 19 — Fraction mixte */
@@ -347,18 +368,14 @@ const flashcards = [
 {
     front: "🔁 Inverse d’une fraction",
     back: "Inverse de a/b = b/a",
-    reasoning: `
-        3/5 → 5/3
-    `
+    reasoning: `3/5 → 5/3`
 },
 
 /* 21 — Pourcentages */
 {
     front: "📊 Fractions et pourcentages",
     back: "1/4 = 25%",
-    reasoning: `
-        1/4 = 0,25 = 25%
-    `
+    reasoning: `1/4 = 0,25 = 25%`
 }
 
 ];

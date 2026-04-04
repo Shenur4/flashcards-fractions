@@ -1,0 +1,151 @@
+/* ------------------------------
+   STYLE GLOBAL
+------------------------------ */
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f7fb;
+    margin: 0;
+    padding: 0;
+    color: #222;
+}
+
+h1, h2, h3 {
+    text-align: center;
+    color: #1a4fa3;
+    margin-top: 20px;
+}
+
+.container {
+    max-width: 420px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* ------------------------------
+   BOUTONS
+------------------------------ */
+
+button {
+    width: 100%;
+    padding: 14px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 10px;
+    background: #1a4fa3;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #163f82;
+}
+
+button.secondary {
+    background: #e0e6f1;
+    color: #1a4fa3;
+}
+
+button.secondary:hover {
+    background: #cdd6e6;
+}
+
+/* ------------------------------
+   CARTES / BLOCS
+------------------------------ */
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin: 20px 0;
+    text-align: center;
+    font-size: 22px;
+    transition: 0.3s ease;
+}
+
+.hidden {
+    display: none;
+}
+
+/* ------------------------------
+   INPUTS
+------------------------------ */
+
+input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 18px;
+}
+
+/* ------------------------------
+   CORRECTIONS
+------------------------------ */
+
+.correct {
+    color: #1fa33c;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.wrong {
+    color: #d62828;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* ------------------------------
+   QUIZ / CHALLENGE
+------------------------------ */
+
+.score-box {
+    background: #1a4fa3;
+    color: white;
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.life {
+    display: inline-block;
+    font-size: 26px;
+    color: #d62828;
+    margin: 0 4px;
+}
+
+/* ------------------------------
+   NAVIGATION
+------------------------------ */
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    background: #1a4fa3;
+    padding: 12px;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+/* ------------------------------
+   ANIMATIONS
+------------------------------ */
+
+.fade-in {
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
