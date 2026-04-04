@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+
+<!-- ESSENTIEL POUR LE MOBILE -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Flashcards Fractions</title>
+
+<!-- MathJax -->
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #eef3ff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 10px;
+        margin: 0;
+    }
+
+    h1 {
+        color: #2c3e50;
+        margin-bottom: 15px;
+        text-align: center;
+        font-size: 22px;
+    }
+
+    /* FLASHCARD RESPONSIVE */
+    .flashcard {
+        width: 100%;
+        max-width: 360px;
+        min-height: 260px;
+        perspective: 1000px;
+        cursor: pointer;
+        margin-bottom: 20px;
+    }
+
+    .card-inner {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transition: transform 0.6s ease;
+        transform-style: preserve-3d;
+    }
+
+    .flashcard.active .card-inner {
+        transform: rotateY(180deg);
+    }
+
+    .card-face {
+        position: absolute;
+        width: 100%;
+        min-height: 260px;
+        backface-visibility: hidden;
+        border-radius: 12px;
+        padding: 20px;
+        box-sizing: border-box;
+        text-align: center;
+        font-size: 17px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .front {
+        background: #4a90e2;
+        color: white;
+    }
+
+    .back {
+        background: white;
+        color: #333;
+        transform: rotateY(180deg);
+        border: 2px solid #4a90e2;
+    }
+
+    .controls {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 10px;
+    }
+
+    button {
+        padding: 10px 18px;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        background: #4a90e2;
+        color: white;
+        cursor: pointer;
+    }
+
+    button:active {
+        background: #3576b8;
+    }
+
+    .reasoning {
+        margin-top: 15px;
+        padding: 10px;
+        background: #eef3ff;
+        border-radius: 8px;
+        display: none;
+        font-size: 15px;
+        text-align: left;
+    }
+
+    .toggle-btn {
+        margin-top: 10px;
+        padding: 8px 15px;
+        background: #2c3e50;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        align-self: center;
+    }
+
+    .index-info {
+        margin-bottom: 10px;
+        font-size: 14px;
+        color: #555;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>Flashcards : Règles des Fractions</h1>
+
+<div class="index-info">
+    Carte <span id="currentIndex"></span> / <span id="totalCards"></span>
+</div>
+
+<div class="flashcard" id="card">
+    <div class="card-inner">
+        <div class="card-face front" id="front"></div>
+        <div class="card-face back">
+            <div id="back"></div>
+            <div class="toggle-btn" onclick="toggleReasoning(event)">Voir le raisonnement</div>
+            <div class="reasoning" id="reasoning"></div>
+        </div>
+    </div>
+</div>
+
+<div class="controls">
+    <button onclick="prevCard()">⬅️</button>
+    <button onclick="nextCard()">➡️</button>
+</div>
+
+<script>
+/* ---------------------------------------------------------
+   FLASHCARDS — TOUTES LES RÈGLES + TÂCHES COMPLEXES
+--------------------------------------------------------- */
+const flashcards = [
+
+/* 1 — Vocabulaire */
+{
+    front: "📘 Qu’est-ce qu’une fraction ?",
+    back: "Une fraction représente une partie d’un tout.",
+    reasoning: `
+        Une fraction \\( \\frac{a}{b} \\) signifie :<br>
+        - On partage en \\( b \\) parts égales<br>
+        - On en prend \\( a \\) parts<br><br>
+        Exemple : \\( \\frac{3}{4} \\)
+    `
+},
+
+/* 2 — Fractions équivalentes */
+{
+    front: "📘 Fractions équivalentes",
+    back: "Elles représentent la même quantité.",
+    reasoning: `
+        \\( \\frac{1}{2} = \\frac{2}{4} = \\frac{3}{6} \\)
+    `
+},
+
+/* 3 — Simplification */
+{
+    front: "🔁 Simplification",
+    back: "On divise par le PGCD.",
+    reasoning: `
+        \\( \\frac{12}{18} = \\frac{2}{3} \\)
+    `
+},
+
+/* 4 — Fraction irréductible */
+{
+    front: "🎯 Fraction irréductible",
+    back: "On ne peut plus simplifier.",
+    reasoning: `
+        Exemple : \\( \\frac{5}{7} \\)
+    `
+},
+
+/* 5 — Mise au même dénominateur */
+{
+    front: "🔄 Même dénominateur",
+    back: "On utilise le PPCM.",
+    reasoning: `
+        4 et 6 → 12<br>
+        \\( \\frac{1}{4} = \\frac{3}{12} \\)<br>
+        \\( \\frac{1}{6} = \\frac{2}{12} \\)
+    `
+},
+
+/* 6 — Addition même dénominateur */
+{
+    front: "➕ Addition (même dénominateur)",
+    back: "\\( \\frac{3}{8} + \\frac{2}{8} = \\frac{5}{8} \\)",
+    reasoning: `
+        3 + 2 = 5
+    `
+},
+
+/* 7 — Addition dénominateurs différents */
+{
+    front: "➕ Addition (dénominateurs différents)",
+    back: "\\( \\frac{1}{4} + \\frac{1}{6} = \\frac{5}{12} \\)",
+    reasoning: `
+        PPCM(4,6)=12<br>
+        3/12 + 2/12 = 5/12
+    `
+},
+
+/* 8 — Addition numérateurs + dénominateurs différents */
+{
+    front: "➕ Addition (cas général)",
+    back: "\\( \\frac{3}{5} + \\frac{4}{7} = \\frac{41}{35} \\)",
+    reasoning: `
+        PPCM(5,7)=35<br>
+        21/35 + 20/35 = 41/35
+    `
+},
+
+/* 9 — Soustraction même dénominateur */
+{
+    front: "➖ Soustraction (même dénominateur)",
+    back: "\\( \\frac{7}{10} - \\frac{3}{10} = \\frac{4}{10} \\)",
+    reasoning: `
+        7 - 3 = 4
+    `
+},
+
+/* 10 — Soustraction dénominateurs différents */
+{
+    front: "➖ Soustraction (dénominateurs différents)",
+    back: "\\( \\frac{5}{6} - \\frac{1}{4} = \\frac{7}{12} \\)",
+    reasoning: `
+        PPCM(6,4)=12<br>
+        10/12 - 3/12 = 7/12
+    `
+},
+
+/* 11 — Soustraction numérateurs + dénominateurs différents */
+{
+    front: "➖ Soustraction (cas général)",
+    back: "\\( \\frac{5}{6} - \\frac{2}{9} = \\frac{11}{18} \\)",
+    reasoning: `
+        PPCM(6,9)=18<br>
+        15/18 - 4/18 = 11/18
+    `
+},
+
+/* 12 — Multiplication */
+{
+    front: "✖️ Multiplication",
+    back: "\\( \\frac{2}{3}×\\frac{5}{4} = \\frac{10}{12} \\)",
+    reasoning: `
+        2×5=10<br>
+        3×4=12
+    `
+},
+
+/* 13 — Division */
+{
+    front: "➗ Division",
+    back: "\\( \\frac{3}{5}÷\\frac{2}{7} = \\frac{21}{10} \\)",
+    reasoning: `
+        On inverse : 2/7 → 7/2<br>
+        3/5 × 7/2 = 21/10
+    `
+},
+
+/* 14 — Comparaison */
+{
+    front: "🔢 Comparer deux fractions",
+    back: "Méthode : produits croisés.",
+    reasoning: `
+        3/4 vs 2/3<br>
+        3×3=9<br>
+        4×2=8<br>
+        9>8 → 3/4 > 2/3
+    `
+},
+
+/* 15 — Fraction d’un nombre */
+{
+    front: "📏 Fraction d’un nombre",
+    back: "\\( \\frac{3}{4} \\) de 20 = 15",
+    reasoning: `
+        20 × 3/4 = 15
+    `
+},
+
+/* 16 — Fraction → décimal */
+{
+    front: "🔢 Fraction → décimal",
+    back: "\\( \\frac{3}{4} = 0,75 \\)",
+    reasoning: `
+        3 ÷ 4 = 0,75
+    `
+},
+
+/* 17 — Décimal → fraction */
+{
+    front: "🔢 Décimal → fraction",
+    back: "0,25 = 1/4",
+    reasoning: `
+        0,25 = 25/100 = 1/4
+    `
+},
+
+/* 18 — Fraction impropre */
+{
+    front: "📘 Fraction impropre",
+    back: "\\( \\frac{9}{4} = 2\\frac{1}{4} \\)",
+    reasoning: `
+        9 ÷ 4 = 2 reste 1
+    `
+},
+
+/* 19 — Fraction mixte */
+{
+    front: "📘 Fraction mixte",
+    back: "2 1/4 = 9/4",
+    reasoning: `
+        2 = 8/4<br>
+        8/4 + 1/4 = 9/4
+    `
+},
+
+/* 20 — Inverse */
+{
+    front: "🔁 Inverse d’une fraction",
+    back: "Inverse de a/b = b/a",
+    reasoning: `
+        3/5 → 5/3
+    `
+},
+
+/* 21 — Pourcentages */
+{
+    front: "📊 Fractions et pourcentages",
+    back: "1/4 = 25%",
+    reasoning: `
+        1/4 = 0,25 = 25%
+    `
+}
+
+];
+
+/* ---------------------------------------------------------
+   LOGIQUE DES CARTES
+--------------------------------------------------------- */
+let index = 0;
+
+function updateCard() {
+    document.getElementById("front").innerHTML = flashcards[index].front;
+    document.getElementById("back").innerHTML = flashcards[index].back;
+    document.getElementById("reasoning").innerHTML = flashcards[index].reasoning;
+
+    document.getElementById("currentIndex").textContent = index + 1;
+    document.getElementById("totalCards").textContent = flashcards.length;
+
+    document.getElementById("reasoning").style.display = "none";
+    document.getElementById("card").classList.remove("active");
+
+    MathJax.typeset();
+}
+
+/* Navigation */
+function nextCard() {
+    index = (index + 1) % flashcards.length;
+    updateCard();
+}
+
+function prevCard() {
+    index = (index - 1 + flashcards.length) % flashcards.length;
+    updateCard();
+}
+
+/* Flip au tap */
+document.getElementById("card").addEventListener("click", () => {
+    document.getElementById("card").classList.toggle("active");
+});
+
+/* Déplier le raisonnement */
+function toggleReasoning(event) {
+    event.stopPropagation();
+    const block = document.getElementById("reasoning");
+    block.style.display = block.style.display === "block" ? "none" : "block";
+    MathJax.typeset();
+}
+
+updateCard();
+</script>
+
+</body>
+</html>
