@@ -36,7 +36,7 @@ button {
     color: white;
     font-size: 18px;
     cursor: pointer;
-    transition: 0.2s;
+    transition: 0.2s ease;
 }
 
 button:hover {
@@ -50,6 +50,14 @@ button.secondary {
 
 button.secondary:hover {
     background: #cdd6e6;
+}
+
+/* Bouton actif (niveau manuel sélectionné) */
+.active-level {
+    background: #1a4fa3 !important;
+    color: white !important;
+    border: 2px solid #163f82 !important;
+    transform: scale(1.05);
 }
 
 /* ------------------------------
@@ -82,6 +90,13 @@ input[type="text"] {
     border-radius: 8px;
     border: 1px solid #ccc;
     font-size: 18px;
+    transition: 0.2s ease;
+}
+
+input[type="text"]:focus {
+    border-color: #1a4fa3;
+    box-shadow: 0 0 6px rgba(26,79,163,0.3);
+    outline: none;
 }
 
 /* ------------------------------
@@ -111,6 +126,7 @@ input[type="text"] {
     border-radius: 10px;
     text-align: center;
     margin-bottom: 15px;
+    font-size: 18px;
 }
 
 .life {
@@ -135,6 +151,12 @@ input[type="text"] {
     color: white;
     text-decoration: none;
     font-size: 16px;
+    font-weight: bold;
+    transition: 0.2s ease;
+}
+
+.navbar a:hover {
+    opacity: 0.8;
 }
 
 /* ------------------------------
