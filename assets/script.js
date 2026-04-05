@@ -1,430 +1,564 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
+/* -----------------------------------
+   OUTILS FRACTIONS
+   Fonctions de base pour manipuler
+   les fractions : simplification,
+   addition, soustraction, etc.
+----------------------------------- */
 
-<!-- ESSENTIEL POUR LE MOBILE -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Flashcards Fractions</title>
-
-<!-- MathJax -->
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #eef3ff;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px 10px;
-        margin: 0;
+// PGCD — utilisé pour simplifier les fractions
+function gcd(a, b) {
+    a = Math.abs(a);
+    b = Math.abs(b);
+    while (b !== 0) {
+        const t = b;
+        b = a % b;
+        a = t;
     }
-
-    /* NAVIGATION */
-    .navbar {
-        width: 100%;
-        max-width: 420px;
-        display: flex;
-        justify-content: space-between;
-        background: #4a90e2;
-        padding: 12px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-    }
-
-    .navbar a {
-        color: white;
-        text-decoration: none;
-        font-size: 15px;
-    }
-
-    h1 {
-        color: #2c3e50;
-        margin-bottom: 15px;
-        text-align: center;
-        font-size: 22px;
-    }
-
-    /* FLASHCARD RESPONSIVE */
-    .flashcard {
-        width: 100%;
-        max-width: 360px;
-        min-height: 260px;
-        perspective: 1000px;
-        cursor: pointer;
-        margin-bottom: 20px;
-    }
-
-    .card-inner {
-        width: 100%;
-        height: 100%;
-        position: relative;
-        transition: transform 0.6s ease;
-        transform-style: preserve-3d;
-    }
-
-    .flashcard.active .card-inner {
-        transform: rotateY(180deg);
-    }
-
-    .card-face {
-        position: absolute;
-        width: 100%;
-        min-height: 260px;
-        backface-visibility: hidden;
-        border-radius: 12px;
-        padding: 20px;
-        box-sizing: border-box;
-        text-align: center;
-        font-size: 17px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .front {
-        background: #4a90e2;
-        color: white;
-    }
-
-    .back {
-        background: white;
-        color: #333;
-        transform: rotateY(180deg);
-        border: 2px solid #4a90e2;
-    }
-
-    .controls {
-        display: flex;
-        gap: 15px;
-        margin-bottom: 10px;
-    }
-
-    button {
-        padding: 10px 18px;
-        font-size: 16px;
-        border: none;
-        border-radius: 8px;
-        background: #4a90e2;
-        color: white;
-        cursor: pointer;
-    }
-
-    button:active {
-        background: #3576b8;
-    }
-
-    .secondary {
-        background: #e0e6f1;
-        color: #1a4fa3;
-    }
-
-    .secondary:active {
-        background: #cdd6e6;
-    }
-
-    .reasoning {
-        margin-top: 15px;
-        padding: 10px;
-        background: #eef3ff;
-        border-radius: 8px;
-        display: none;
-        font-size: 15px;
-        text-align: left;
-    }
-
-    .toggle-btn {
-        margin-top: 10px;
-        padding: 8px 15px;
-        background: #2c3e50;
-        color: white;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        align-self: center;
-    }
-
-    .index-info {
-        margin-bottom: 10px;
-        font-size: 14px;
-        color: #555;
-    }
-</style>
-</head>
-
-<body>
-
-<!-- NAVIGATION -->
-<div class="navbar">
-    <a href="index.html">Flashcards</a>
-    <a href="exercices.html">Exercices</a>
-</div>
-
-<h1>Flashcards : Règles des Fractions</h1>
-
-<div class="index-info">
-    Carte <span id="currentIndex"></span> / <span id="totalCards"></span>
-</div>
-
-<div class="flashcard" id="card">
-    <div class="card-inner">
-        <div class="card-face front" id="front"></div>
-        <div class="card-face back">
-            <div id="back"></div>
-            <div class="toggle-btn" onclick="toggleReasoning(event)">Voir le raisonnement</div>
-            <div class="reasoning" id="reasoning"></div>
-        </div>
-    </div>
-</div>
-
-<div class="controls">
-    <button onclick="prevCard()">⬅️</button>
-    <button onclick="nextCard()">➡️</button>
-</div>
-
-<script>
-/* ---------------------------------------------------------
-   FLASHCARDS — TOUTES LES RÈGLES + TÂCHES COMPLEXES
---------------------------------------------------------- */
-const flashcards = [
-
-/* 1 — Vocabulaire */
-{
-    front: "📘 Qu’est-ce qu’une fraction ?",
-    back: "Une fraction représente une partie d’un tout.",
-    reasoning: `
-        Une fraction \\( \\frac{a}{b} \\) signifie :<br>
-        - On partage en \\( b \\) parts égales<br>
-        - On en prend \\( a \\) parts<br><br>
-        Exemple : \\( \\frac{3}{4} \\)
-    `
-},
-
-/* 2 — Fractions équivalentes */
-{
-    front: "📘 Fractions équivalentes",
-    back: "Elles représentent la même quantité.",
-    reasoning: `
-        \\( \\frac{1}{2} = \\frac{2}{4} = \\frac{3}{6} \\)
-    `
-},
-
-/* 3 — Simplification */
-{
-    front: "🔁 Simplification",
-    back: "On divise par le PGCD.",
-    reasoning: `
-        \\( \\frac{12}{18} = \\frac{2}{3} \\)
-    `
-},
-
-/* 4 — Fraction irréductible */
-{
-    front: "🎯 Fraction irréductible",
-    back: "On ne peut plus simplifier.",
-    reasoning: `
-        Exemple : \\( \\frac{5}{7} \\)
-    `
-},
-
-/* 5 — Mise au même dénominateur */
-{
-    front: "🔄 Même dénominateur",
-    back: "On utilise le PPCM.",
-    reasoning: `
-        4 et 6 → 12<br>
-        \\( \\frac{1}{4} = \\frac{3}{12} \\)<br>
-        \\( \\frac{1}{6} = \\frac{2}{12} \\)
-    `
-},
-
-/* 6 — Addition même dénominateur */
-{
-    front: "➕ Addition (même dénominateur)",
-    back: "\\( \\frac{3}{8} + \\frac{2}{8} = \\frac{5}{8} \\)",
-    reasoning: `3 + 2 = 5`
-},
-
-/* 7 — Addition dénominateurs différents */
-{
-    front: "➕ Addition (dénominateurs différents)",
-    back: "\\( \\frac{1}{4} + \\frac{1}{6} = \\frac{5}{12} \\)",
-    reasoning: `
-        PPCM(4,6)=12<br>
-        3/12 + 2/12 = 5/12
-    `
-},
-
-/* 8 — Addition cas général */
-{
-    front: "➕ Addition (cas général)",
-    back: "\\( \\frac{3}{5} + \\frac{4}{7} = \\frac{41}{35} \\)",
-    reasoning: `
-        PPCM(5,7)=35<br>
-        21/35 + 20/35 = 41/35
-    `
-},
-
-/* 9 — Soustraction même dénominateur */
-{
-    front: "➖ Soustraction (même dénominateur)",
-    back: "\\( \\frac{7}{10} - \\frac{3}{10} = \\frac{4}{10} \\)",
-    reasoning: `7 - 3 = 4`
-},
-
-/* 10 — Soustraction dénominateurs différents */
-{
-    front: "➖ Soustraction (dénominateurs différents)",
-    back: "\\( \\frac{5}{6} - \\frac{1}{4} = \\frac{7}{12} \\)",
-    reasoning: `
-        PPCM(6,4)=12<br>
-        10/12 - 3/12 = 7/12
-    `
-},
-
-/* 11 — Soustraction cas général */
-{
-    front: "➖ Soustraction (cas général)",
-    back: "\\( \\frac{5}{6} - \\frac{2}{9} = \\frac{11}{18} \\)",
-    reasoning: `
-        PPCM(6,9)=18<br>
-        15/18 - 4/18 = 11/18
-    `
-},
-
-/* 12 — Multiplication */
-{
-    front: "✖️ Multiplication",
-    back: "\\( \\frac{2}{3}×\\frac{5}{4} = \\frac{10}{12} \\)",
-    reasoning: `
-        2×5=10<br>
-        3×4=12
-    `
-},
-
-/* 13 — Division */
-{
-    front: "➗ Division",
-    back: "\\( \\frac{3}{5}÷\\frac{2}{7} = \\frac{21}{10} \\)",
-    reasoning: `
-        On inverse : 2/7 → 7/2<br>
-        3/5 × 7/2 = 21/10
-    `
-},
-
-/* 14 — Comparaison */
-{
-    front: "🔢 Comparer deux fractions",
-    back: "Méthode : produits croisés.",
-    reasoning: `
-        3/4 vs 2/3<br>
-        3×3=9<br>
-        4×2=8<br>
-        9>8 → 3/4 > 2/3
-    `
-},
-
-/* 15 — Fraction d’un nombre */
-{
-    front: "📏 Fraction d’un nombre",
-    back: "\\( \\frac{3}{4} \\) de 20 = 15",
-    reasoning: `20 × 3/4 = 15`
-},
-
-/* 16 — Fraction → décimal */
-{
-    front: "🔢 Fraction → décimal",
-    back: "\\( \\frac{3}{4} = 0,75 \\)",
-    reasoning: `3 ÷ 4 = 0,75`
-},
-
-/* 17 — Décimal → fraction */
-{
-    front: "🔢 Décimal → fraction",
-    back: "0,25 = 1/4",
-    reasoning: `0,25 = 25/100 = 1/4`
-},
-
-/* 18 — Fraction impropre */
-{
-    front: "📘 Fraction impropre",
-    back: "\\( \\frac{9}{4} = 2\\frac{1}{4} \\)",
-    reasoning: `9 ÷ 4 = 2 reste 1`
-},
-
-/* 19 — Fraction mixte */
-{
-    front: "📘 Fraction mixte",
-    back: "2 1/4 = 9/4",
-    reasoning: `
-        2 = 8/4<br>
-        8/4 + 1/4 = 9/4
-    `
-},
-
-/* 20 — Inverse */
-{
-    front: "🔁 Inverse d’une fraction",
-    back: "Inverse de a/b = b/a",
-    reasoning: `3/5 → 5/3`
-},
-
-/* 21 — Pourcentages */
-{
-    front: "📊 Fractions et pourcentages",
-    back: "1/4 = 25%",
-    reasoning: `1/4 = 0,25 = 25%`
+    return a || 1;
 }
 
-];
+// Simplifie une fraction (ex : 6/8 → 3/4)
+function simplify(frac) {
+    if (frac.den === 0) return frac;
+    const g = gcd(frac.num, frac.den);
+    return { num: frac.num / g, den: frac.den / g };
+}
 
-/* ---------------------------------------------------------
-   LOGIQUE DES CARTES
---------------------------------------------------------- */
-let index = 0;
+// Addition
+function addFrac(a, b) {
+    return simplify({
+        num: a.num * b.den + b.num * a.den,
+        den: a.den * b.den
+    });
+}
 
-function updateCard() {
-    document.getElementById("front").innerHTML = flashcards[index].front;
-    document.getElementById("back").innerHTML = flashcards[index].back;
-    document.getElementById("reasoning").innerHTML = flashcards[index].reasoning;
+// Soustraction
+function subFrac(a, b) {
+    return simplify({
+        num: a.num * b.den - b.num * a.den,
+        den: a.den * b.den
+    });
+}
 
-    document.getElementById("currentIndex").textContent = index + 1;
-    document.getElementById("totalCards").textContent = flashcards.length;
+// Multiplication
+function mulFrac(a, b) {
+    return simplify({
+        num: a.num * b.num,
+        den: a.den * b.den
+    });
+}
 
-    document.getElementById("reasoning").style.display = "none";
-    document.getElementById("card").classList.remove("active");
+// Division
+function divFrac(a, b) {
+    return simplify({
+        num: a.num * b.den,
+        den: a.den * b.num
+    });
+}
+
+// Convertit une fraction en LaTeX pour MathJax
+function fracToLatex(frac) {
+    frac = simplify(frac);
+    return frac.den === 1
+        ? frac.num.toString()
+        : `\\(\\frac{${frac.num}}{${frac.den}}\\)`;
+}
+
+/* Analyse une entrée utilisateur :
+   - "3/4" → fraction
+   - "0.75" ou "0,75" → décimal
+*/
+function parseFractionInput(str) {
+    str = str.replace(/\s+/g, "");
+
+    if (str.includes("/")) {
+        const [numStr, denStr] = str.split("/");
+        const num = parseInt(numStr, 10);
+        const den = parseInt(denStr, 10);
+        if (isNaN(num) || isNaN(den) || den === 0) return null;
+        return simplify({ num, den });
+    }
+
+    const num = parseFloat(str.replace(",", "."));
+    return isNaN(num) ? null : num;
+}
+
+/* -----------------------------------
+   MODE AUTO / MANUEL
+----------------------------------- */
+
+let mode = "auto";       // auto = progression intelligente
+let difficulty = 1;      // niveau manuel
+let level = 1;           // niveau auto (1 → 5)
+let streak = 0;          // bonnes réponses consécutives
+let mistakes = 0;        // erreurs consécutives
+
+/* Ajuste automatiquement le niveau en mode AUTO */
+function adjustLevel(correct) {
+    if (mode !== "auto") return;
+
+    if (correct) {
+        streak++;
+        if (streak >= 3 && level < 5) {
+            level++;
+            streak = 0;
+        }
+    } else {
+        mistakes++;
+        streak = 0;
+        if (mistakes >= 2 && level > 1) {
+            level--;
+            mistakes = 0;
+        }
+    }
+}
+
+/* -----------------------------------
+   GÉNÉRATION D’EXERCICES PAR NIVEAU
+----------------------------------- */
+
+// Génère une fraction adaptée au niveau
+function generateRandomFraction(currentLevel) {
+    const max = [0, 10, 20, 50, 100, 200][currentLevel] || 20;
+    const den = randomInt(2, max);
+    const num = randomInt(1, den - 1);
+    return simplify({ num, den });
+}
+
+// Petit utilitaire
+function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/* -----------------------------------
+   TYPES D’EXERCICES SELON NIVEAU
+----------------------------------- */
+
+function generateSmartExercise() {
+    const currentLevel = (mode === "auto") ? level : difficulty;
+
+    // Pool d’exercices par niveau
+    const pools = {
+        1: ["add_same", "sub_same", "simplify"],
+        2: ["add_diff", "sub_diff", "mul", "simplify", "compare"],
+        3: ["add_diff", "sub_diff", "mul", "div", "complex"],
+        4: ["add_diff", "sub_diff", "mul", "div", "complex", "decimal", "fraction_of"],
+        5: ["complex", "super_complex", "compare3", "decimal", "fraction_of"]
+    };
+
+    const typePool = pools[currentLevel] || pools[1];
+    const type = typePool[randomInt(0, typePool.length - 1)];
+
+    let a, b, c, res;
+
+    /* --- EXERCICES CLASSIQUES --- */
+
+    if (type === "add_same") {
+        a = generateRandomFraction(currentLevel);
+        b = { num: randomInt(1, a.den - 1), den: a.den };
+        res = addFrac(a, b);
+        return {
+            text: `${fracToLatex(a)} + ${fracToLatex(b)}`,
+            answerFrac: res,
+            explanation: "Même dénominateur : on additionne les numérateurs."
+        };
+    }
+
+    if (type === "sub_same") {
+        a = generateRandomFraction(currentLevel);
+        b = { num: randomInt(1, a.num), den: a.den };
+        res = subFrac(a, b);
+        return {
+            text: `${fracToLatex(a)} - ${fracToLatex(b)}`,
+            answerFrac: res,
+            explanation: "Même dénominateur : on soustrait les numérateurs."
+        };
+    }
+
+    if (type === "add_diff") {
+        a = generateRandomFraction(currentLevel);
+        b = generateRandomFraction(currentLevel);
+        res = addFrac(a, b);
+        return {
+            text: `${fracToLatex(a)} + ${fracToLatex(b)}`,
+            answerFrac: res,
+            explanation: "On met au même dénominateur puis on additionne."
+        };
+    }
+
+    if (type === "sub_diff") {
+        a = generateRandomFraction(currentLevel);
+        b = generateRandomFraction(currentLevel);
+        res = subFrac(a, b);
+        return {
+            text: `${fracToLatex(a)} - ${fracToLatex(b)}`,
+            answerFrac: res,
+            explanation: "On met au même dénominateur puis on soustrait."
+        };
+    }
+
+    if (type === "mul") {
+        a = generateRandomFraction(currentLevel);
+        b = generateRandomFraction(currentLevel);
+        res = mulFrac(a, b);
+        return {
+            text: `${fracToLatex(a)} × ${fracToLatex(b)}`,
+            answerFrac: res,
+            explanation: "On multiplie numérateurs et dénominateurs."
+        };
+    }
+
+    if (type === "div") {
+        a = generateRandomFraction(currentLevel);
+        b = generateRandomFraction(currentLevel);
+        res = divFrac(a, b);
+        return {
+            text: `${fracToLatex(a)} ÷ ${fracToLatex(b)}`,
+            answerFrac: res,
+            explanation: "On multiplie par l'inverse."
+        };
+    }
+
+    if (type === "simplify") {
+        a = generateRandomFraction(currentLevel);
+        const k = randomInt(2, 6);
+        const unsimplified = { num: a.num * k, den: a.den * k };
+        res = simplify(unsimplified);
+        return {
+            text: `Simplifie : ${fracToLatex(unsimplified)}`,
+            answerFrac: res,
+            explanation: "On divise numérateur et dénominateur par le même nombre."
+        };
+    }
+
+    if (type === "compare") {
+        a = generateRandomFraction(currentLevel);
+        b = generateRandomFraction(currentLevel);
+        res = (a.num * b.den > b.num * a.den) ? a : b;
+        return {
+            text: `Quelle fraction est la plus grande ?<br>${fracToLatex(a)} ou ${fracToLatex(b)}`,
+            answerFrac: res,
+            explanation: "On compare les produits croisés."
+        };
+    }
+
+    /* --- EXERCICES AVANCÉS --- */
+
+    if (type === "complex") {
+        a = generateRandomFraction(currentLevel);
+        b = generateRandomFraction(currentLevel);
+        c = generateRandomFraction(currentLevel);
+        res = subFrac(addFrac(a, b), c);
+        return {
+            text: `${fracToLatex(a)} + ${fracToLatex(b)} - ${fracToLatex(c)}`,
+            answerFrac: res,
+            explanation: "On effectue l'addition puis la soustraction."
+        };
+    }
+
+    /* --- CONVERSION DÉCIMALE --- */
+
+    if (type === "decimal") {
+        a = generateRandomFraction(currentLevel);
+        res = a.num / a.den;
+        return {
+            text: `Convertis en décimal : ${fracToLatex(a)}`,
+            answerDecimal: res,
+            explanation: "On effectue la division numérateur ÷ dénominateur."
+        };
+    }
+
+    if (type === "fraction_of") {
+        a = generateRandomFraction(currentLevel);
+        const n = randomInt(5, 50);
+        res = mulFrac(a, { num: n, den: 1 });
+        return {
+            text: `${fracToLatex(a)} de ${n}`,
+            answerFrac: res,
+            explanation: "On multiplie le nombre par la fraction."
+        };
+    }
+
+    if (type === "compare3") {
+        a = generateRandomFraction(currentLevel);
+        b = generateRandomFraction(currentLevel);
+        c = generateRandomFraction(currentLevel);
+        const best = [a, b, c].sort((x, y) => x.num * y.den - y.num * x.den)[2];
+        return {
+            text: `Quelle est la plus grande ?<br>${fracToLatex(a)}, ${fracToLatex(b)}, ${fracToLatex(c)}`,
+            answerFrac: best,
+            explanation: "On compare les produits croisés."
+        };
+    }
+
+    if (type === "super_complex") {
+        a = generateRandomFraction(currentLevel);
+        b = generateRandomFraction(currentLevel);
+        c = generateRandomFraction(currentLevel);
+        res = mulFrac(a, addFrac(b, c));
+        return {
+            text: `${fracToLatex(a)} × (${fracToLatex(b)} + ${fracToLatex(c)})`,
+            answerFrac: res,
+            explanation: "On calcule d'abord l'expression entre parenthèses."
+        };
+    }
+
+    // Sécurité : ne devrait jamais arriver
+    return generateSmartExercise();
+}
+/* -----------------------------------
+   MODE EXERCICES
+   Gère un exercice unique avec correction
+----------------------------------- */
+
+let currentExercise = null;
+
+// Génère un nouvel exercice et réinitialise l'affichage
+function newExercise() {
+    currentExercise = generateSmartExercise();
+    $("exercise-question").innerHTML = currentExercise.text;
+    $("exercise-answer").value = "";
+    $("exercise-feedback").innerHTML = "";
+    $("exercise-explanation").innerHTML = "";
+    MathJax.typeset();
+}
+
+function checkExerciseAnswer() {
+    const input = $("exercise-answer").value;
+
+    /* --- CAS DÉCIMAL --- */
+    if (currentExercise.answerDecimal !== undefined) {
+        const user = parseFloat(input.replace(",", "."));
+        const correct = currentExercise.answerDecimal;
+
+        if (Math.abs(user - correct) < 0.0001) {
+            $("exercise-feedback").innerHTML = "<span class='correct'>Bravo !</span>";
+            adjustLevel(true);
+        } else {
+            $("exercise-feedback").innerHTML =
+                `<span class='wrong'>Incorrect.</span><br>
+                 Ta réponse : ${user}<br>
+                 Bonne réponse : ${correct.toFixed(6)}`;
+            adjustLevel(false);
+        }
+
+        $("exercise-explanation").innerHTML = currentExercise.explanation;
+        return;
+    }
+
+    /* --- CAS FRACTION --- */
+    const parsed = parseFractionInput(input);
+    if (!parsed || typeof parsed === "number") {
+        $("exercise-feedback").innerHTML = "<span class='wrong'>Réponse invalide.</span>";
+        return;
+    }
+
+    const correct = simplify(currentExercise.answerFrac);
+    const user = simplify(parsed);
+    const isCorrect = correct.num === user.num && correct.den === user.den;
+
+    adjustLevel(isCorrect);
+
+    $("exercise-feedback").innerHTML = isCorrect
+        ? "<span class='correct'>Bravo !</span>"
+        : `<span class='wrong'>Incorrect.</span><br>
+           Ta réponse : ${fracToLatex(user)}<br>
+           Bonne réponse : ${fracToLatex(correct)}`;
+
+    $("exercise-explanation").innerHTML = currentExercise.explanation;
+    MathJax.typeset();
+}
+
+/* -----------------------------------
+   QUIZ (10 questions)
+----------------------------------- */
+
+let quizQuestions = [];
+let quizIndex = 0;
+let quizScore = 0;
+
+// Initialise un quiz complet
+function startQuiz() {
+    quizQuestions = Array.from({ length: 10 }, () => generateSmartExercise());
+    quizIndex = 0;
+    quizScore = 0;
+
+    $("quiz-score").innerText = "Score : 0 / 10";
+    $("quiz-feedback").innerHTML = "";
+    $("quiz-answer").value = "";
+
+    showQuizQuestion();
+}
+
+// Affiche la question en cours
+function showQuizQuestion() {
+    const q = quizQuestions[quizIndex];
+
+    $("quiz-question").innerHTML = `Question ${quizIndex + 1} :<br>${q.text}`;
+    $("quiz-progress").innerText = `Question ${quizIndex + 1} / 10`;
+    $("quiz-answer").value = "";
+    $("quiz-feedback").innerHTML = "";
 
     MathJax.typeset();
 }
 
-/* Navigation */
-function nextCard() {
-    index = (index + 1) % flashcards.length;
-    updateCard();
-}
+// Vérifie la réponse du quiz
+function checkQuizAnswer() {
+    const q = quizQuestions[quizIndex];
+    const input = $("quiz-answer").value;
 
-function prevCard() {
-    index = (index - 1 + flashcards.length) % flashcards.length;
-    updateCard();
-}
+    /* --- CAS DÉCIMAL --- */
+    if (q.answerDecimal !== undefined) {
+        const user = parseFloat(input.replace(",", "."));
+        const correct = q.answerDecimal;
 
-/* Flip au tap */
-document.getElementById("card").addEventListener("click", () => {
-    document.getElementById("card").classList.toggle("active");
-});
+        if (Math.abs(user - correct) < 0.0001) {
+            quizScore++;
+            $("quiz-feedback").innerHTML = "<span class='correct'>Correct !</span>";
+        } else {
+            $("quiz-feedback").innerHTML =
+                `<span class='wrong'>Incorrect.</span><br>
+                 Ta réponse : ${user}<br>
+                 Bonne réponse : ${correct.toFixed(6)}`;
+        }
 
-/* Déplier le raisonnement */
-function toggleReasoning(event) {
-    event.stopPropagation();
-    const block = document.getElementById("reasoning");
-    block.style.display = block.style.display === "block" ? "none" : "block";
+        $("quiz-score").innerText = `Score : ${quizScore} / 10`;
+        return;
+    }
+
+    /* --- CAS FRACTION --- */
+    const parsed = parseFractionInput(input);
+    if (!parsed || typeof parsed === "number") {
+        $("quiz-feedback").innerHTML = "<span class='wrong'>Réponse invalide.</span>";
+        return;
+    }
+
+    const correct = simplify(q.answerFrac);
+    const user = simplify(parsed);
+
+    if (correct.num === user.num && correct.den === user.den) {
+        quizScore++;
+        $("quiz-feedback").innerHTML = "<span class='correct'>Correct !</span>";
+    } else {
+        $("quiz-feedback").innerHTML =
+            `<span class='wrong'>Incorrect.</span><br>
+             Ta réponse : ${fracToLatex(user)}<br>
+             Bonne réponse : ${fracToLatex(correct)}`;
+    }
+
+    $("quiz-score").innerText = `Score : ${quizScore} / 10`;
     MathJax.typeset();
 }
 
-updateCard();
-</script>
+// Passe à la question suivante
+function nextQuizQuestion() {
+    if (quizIndex < 9) {
+        quizIndex++;
+        showQuizQuestion();
+    } else {
+        $("quiz-question").innerHTML =
+            `Quiz terminé !<br>Score final : ${quizScore} / 10`;
+        $("quiz-feedback").innerHTML = "";
+        $("quiz-progress").innerText = "Terminé";
+        MathJax.typeset();
+    }
+}
 
-</body>
-</html>
+/* -----------------------------------
+   CHALLENGE (vies + score illimité)
+----------------------------------- */
+
+let challengeLives = 3;
+let challengeScore = 0;
+let challengeQuestion = null;
+
+// Affiche les cœurs
+function renderLives() {
+    $("challenge-lives").innerHTML =
+        Array.from({ length: challengeLives }, () => "<span class='life'>❤</span>").join("");
+}
+
+// Démarre un challenge
+function startChallenge() {
+    challengeLives = 3;
+    challengeScore = 0;
+
+    $("challenge-score").innerText = "Score : 0";
+    $("challenge-feedback").innerHTML = "";
+    $("challenge-answer").value = "";
+
+    renderLives();
+    newChallengeQuestion();
+}
+
+// Nouvelle question tant qu'il reste des vies
+function newChallengeQuestion() {
+    if (challengeLives <= 0) {
+        $("challenge-question").innerHTML =
+            `Challenge terminé !<br>Score final : ${challengeScore}`;
+        $("challenge-feedback").innerHTML = "";
+        MathJax.typeset();
+        return;
+    }
+
+    challengeQuestion = generateSmartExercise();
+    $("challenge-question").innerHTML = challengeQuestion.text;
+    $("challenge-answer").value = "";
+    $("challenge-feedback").innerHTML = "";
+
+    MathJax.typeset();
+}
+
+// Vérifie la réponse du challenge
+function checkChallengeAnswer() {
+    if (!challengeQuestion || challengeLives <= 0) return;
+
+    const input = $("challenge-answer").value;
+
+    /* --- CAS DÉCIMAL --- */
+    if (challengeQuestion.answerDecimal !== undefined) {
+        const user = parseFloat(input.replace(",", "."));
+        const correct = challengeQuestion.answerDecimal;
+
+        if (Math.abs(user - correct) < 0.0001) {
+            challengeScore++;
+            $("challenge-score").innerText = `Score : ${challengeScore}`;
+            $("challenge-feedback").innerHTML = "<span class='correct'>Correct !</span>";
+        } else {
+            challengeLives--;
+            renderLives();
+            $("challenge-feedback").innerHTML =
+                `<span class='wrong'>Incorrect.</span><br>
+                 Ta réponse : ${user}<br>
+                 Bonne réponse : ${correct.toFixed(6)}`;
+        }
+
+        MathJax.typeset();
+        return;
+    }
+
+    /* --- CAS FRACTION --- */
+    const parsed = parseFractionInput(input);
+    if (!parsed || typeof parsed === "number") {
+        $("challenge-feedback").innerHTML = "<span class='wrong'>Réponse invalide.</span>";
+        return;
+    }
+
+    const correct = simplify(challengeQuestion.answerFrac);
+    const user = simplify(parsed);
+
+    if (correct.num === user.num && correct.den === user.den) {
+        challengeScore++;
+        $("challenge-score").innerText = `Score : ${challengeScore}`;
+        $("challenge-feedback").innerHTML = "<span class='correct'>Correct !</span>";
+    } else {
+        challengeLives--;
+        renderLives();
+        $("challenge-feedback").innerHTML =
+            `<span class='wrong'>Incorrect.</span><br>
+             Ta réponse : ${fracToLatex(user)}<br>
+             Bonne réponse : ${fracToLatex(correct)}`;
+    }
+
+    MathJax.typeset();
+}
