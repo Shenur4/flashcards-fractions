@@ -562,3 +562,121 @@ function checkChallengeAnswer() {
 
     MathJax.typeset();
 }
+/* -----------------------------------
+   OUTIL DOM
+   Petit raccourci pour document.getElementById
+----------------------------------- */
+function $(id) {
+    return document.getElementById(id);
+}
+
+/* -----------------------------------
+   AFFICHAGE DES SECTIONS
+   Permet de basculer entre :
+   - Exercices
+   - Quiz
+   - Challenge
+----------------------------------- */
+function showSection(sectionId) {
+    const sections = ["exercise-section", "quiz-section", "challenge-section"];
+
+    sections.forEach(id => {
+        $(id).classList.add("hidden");
+    });
+
+    $(sectionId).classList.remove("hidden");
+}
+
+/* -----------------------------------
+   INITIALISATION & ÉCOUTEURS
+----------------------------------- */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    /* ------------------------------
+       NAVIGATION PRINCIPALE
+    ------------------------------ */
+
+    $("btn-mode-exercise").addEventListener("click", () => {
+        showSection("exercise-section");
+        newExercise();
+    });
+
+    $("btn-mode-quiz").addEventListener("click", () => {
+        showSection("quiz-section");
+        startQuiz();
+    });
+
+    $("btn-mode-challenge").addEventListener("click", () => {
+        showSection("challenge-section");
+        startChallenge();
+    });
+
+    /* ------------------------------
+       MODE AUTO / MANUEL
+    ------------------------------ */
+
+    $("mode-auto").addEventListener("click", () => {
+        mode = "auto";
+        $("manual-levels").classList.add("hidden");
+    });
+
+    $("mode-manual").addEventListener("click", () => {
+        mode = "manual";
+        $("manual-levels").classList.remove("hidden");
+    });
+
+    /* ------------------------------
+       BOUTONS DE NIVEAU MANUEL
+       (avec mise en évidence visuelle)
+    ------------------------------ */
+
+    document.querySelectorAll(".level-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+
+            // 1. Mise à jour du niveau manuel
+            difficulty = parseInt(btn.dataset.level);
+
+            // 2. Mise en évidence du bouton sélectionné
+            document.querySelectorAll(".level-btn")
+                .forEach(b => b.classList.remove("active-level"));
+
+            btn.classList.add("active-level");
+
+            // 3. Générer un nouvel exercice immédiatement
+            if (mode === "manual") {
+                newExercise();
+            }
+        });
+    });
+
+    /* ------------------------------
+       MODE EXERCICES
+    ------------------------------ */
+
+    $("exercise-new").addEventListener("click", newExercise);
+    $("exercise-check").addEventListener("click", checkExerciseAnswer);
+
+    /* ------------------------------
+       MODE QUIZ
+    ------------------------------ */
+
+    $("quiz-start").addEventListener("click", startQuiz);
+    $("quiz-check").addEventListener("click", checkQuizAnswer);
+    $("quiz-next").addEventListener("click", nextQuizQuestion);
+
+    /* ------------------------------
+       MODE CHALLENGE
+    ------------------------------ */
+
+    $("challenge-start").addEventListener("click", startChallenge);
+    $("challenge-check").addEventListener("click", checkChallengeAnswer);
+    $("challenge-next").addEventListener("click", newChallengeQuestion);
+
+    /* ------------------------------
+       SECTION PAR DÉFAUT
+    ------------------------------ */
+
+    showSection("exercise-section");
+    newExercise();
+});
